@@ -4,18 +4,29 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.ServiceProcess;
+using Newtonsoft.Json;
 
 namespace Shazam
 {
 	internal class MonitoredService
 	{
 		private ServiceController _service;
-		private const int _defaultTimeoutInMilliseconds = 100;
+		private const int _retry = 5;
+		private const int _timeout = 1000;
 
 		public string DisplayName { get; set; }
 		public bool AutoStart { get; set; }
 		public bool AutoStop { get; set; }
-		public bool IsValidService { get; private set; }
+
+		[JsonIgnore] public bool IsValidService { get; private set; }
+		[JsonIgnore] public int  DefaultTimeout { get; set; }
+		[JsonIgnore] public int RetryAttempts { get; set; }
+
+		internal MonitoredService()
+		{
+			DefaultTimeout = _timeout;
+			RetryAttempts = _retry;
+		}
 
 		public string ServiceName
 		{
@@ -40,7 +51,27 @@ namespace Shazam
 			}
 		}
 
-		public void Start(int timeoutInMilliseconds = _defaultTimeoutInMilliseconds)
+		public ServiceControllerStatus Status
+		{
+			get
+			{
+				if (_service == null) throw new Exception("Invalid Service");
+				_service.Refresh();
+				return _service.Status;
+			}
+		}
+
+		public bool CanStop
+		{
+			get
+			{
+				if (_service == null) throw new Exception("Invalid Service");
+				_service.Refresh();
+				return _service.CanStop;
+			}
+		}
+
+		public void Start()
 		{
 			if (_service == null) throw new Exception("Invalid Service");
 
@@ -50,59 +81,66 @@ namespace Shazam
 				return;
 			}
 
-			try
+			var attempts = 0;
+			var wait = true;
+
+			while ((wait) && (attempts < RetryAttempts))
 			{
-				var timeout = TimeSpan.FromMilliseconds(timeoutInMilliseconds);
-				_service.Start();
-				_service.WaitForStatus(ServiceControllerStatus.Running, timeout);
-			}
-			catch (Exception e)
-			{
-				//TODO: Better exception handling
-				Console.WriteLine(e.Message);
+				try
+				{
+					_service.Start();
+					_service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(DefaultTimeout));
+					wait = (Status != ServiceControllerStatus.Running);
+				}
+				catch (System.ServiceProcess.TimeoutException e)
+				{
+					attempts += 1;
+				}
+				catch (Exception e)
+				{
+					throw e;
+				}
 			}
 		}
 
-		public ServiceControllerStatus Status
-		{
-			get
-			{
-				if (_service == null) throw new Exception("Invalid Service");
-				return _service.Status;
-			}
-		}
-
-		public bool CanStop
-		{
-			get { return (_service != null) ? _service.CanStop : false; }
-		}
-
-		public void Stop(int timeoutInMilliseconds = _defaultTimeoutInMilliseconds)
+		public void Stop()
 		{
 			if (_service == null) throw new Exception("Invalid Service");
 
 			if ((_service.Status.Equals(ServiceControllerStatus.Stopped)) ||
-			    (_service.Status.Equals(ServiceControllerStatus.StopPending)))
+				(_service.Status.Equals(ServiceControllerStatus.StopPending)))
 			{
 				return;
 			}
 
-			try
+			var attempts = 0;
+			var wait = true;
+
+			while ((wait) && (attempts < RetryAttempts))
 			{
-				var timeout = TimeSpan.FromMilliseconds(timeoutInMilliseconds);
-				_service.Stop();
-				_service.WaitForStatus(ServiceControllerStatus.Stopped, timeout);
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e.Message);
+				try
+				{
+					_service.Stop();
+					_service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromMilliseconds(DefaultTimeout));
+					wait = (Status != ServiceControllerStatus.Stopped);
+				}
+				catch (System.ServiceProcess.TimeoutException e)
+				{
+					attempts += 1;
+				}
+				catch (Exception e)
+				{
+					throw e;
+				}
 			}
 		}
 
-		public void Restart(int timeoutInMilliseconds = _defaultTimeoutInMilliseconds)
+		public void Restart()
 		{
-			this.Stop(timeoutInMilliseconds);
-			this.Start(timeoutInMilliseconds);
+			this.Stop();
+			this.Start();
 		}
 	}
 }
+
+//TODO: Start and Stop should wait to see if the result is pending before attempting again
