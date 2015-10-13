@@ -14,6 +14,8 @@ namespace Shazam
 		private const int _retry = 5;
 		private const int _timeout = 1000;
 
+		private string _serviceName;
+
 		public string DisplayName { get; set; }
 		public bool AutoStart { get; set; }
 		public bool AutoStop { get; set; }
@@ -28,12 +30,18 @@ namespace Shazam
 			RetryAttempts = _retry;
 		}
 
+		internal MonitoredService(ServiceController service) : base()
+		{
+			_service = service;
+			DisplayName = _service.DisplayName;
+			IsValidService = true;
+		}
+
 		public string ServiceName
 		{
 			get
 			{
-				if (_service == null) throw new Exception("Invalid Service");
-				return _service.ServiceName;
+				return (_service == null) ? _serviceName :_service.ServiceName;
 			}
 			set
 			{
@@ -46,41 +54,51 @@ namespace Shazam
 				catch
 				{
 					this.IsValidService = false;
+					_serviceName = value;
 					_service = null;
 				}
 			}
 		}
 
+		[JsonIgnore]
 		public ServiceControllerStatus Status
 		{
 			get
 			{
-				if (_service == null) throw new Exception("Invalid Service");
-				_service.Refresh();
-				return _service.Status;
+				if (IsValidService)
+				{
+					_service.Refresh();
+					return _service.Status;					
+				}
+				else
+				{
+					return ServiceControllerStatus.Stopped;
+				}
 			}
 		}
 
+		[JsonIgnore]
 		public bool CanStop
 		{
 			get
 			{
-				if (_service == null) throw new Exception("Invalid Service");
-				_service.Refresh();
-				return _service.CanStop;
+				if (IsValidService)
+				{
+					_service.Refresh();
+					return _service.CanStop;
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
 
 		public void Start()
 		{
-			if (_service == null) throw new Exception("Invalid Service");
-
-			if ((_service.Status.Equals(ServiceControllerStatus.Running)) ||
-				(_service.Status.Equals(ServiceControllerStatus.StartPending)))
-			{
-				return;
-			}
-
+			if (!IsValidService) return;
+			if (_service.Status.Equals(ServiceControllerStatus.Running)) return;
+			
 			var attempts = 0;
 			var wait = true;
 
@@ -88,9 +106,10 @@ namespace Shazam
 			{
 				try
 				{
-					_service.Start();
+					if (!_service.Status.Equals(ServiceControllerStatus.StartPending)) _service.Start();
 					_service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(DefaultTimeout));
 					wait = (Status != ServiceControllerStatus.Running);
+					attempts += 1;
 				}
 				catch (System.ServiceProcess.TimeoutException e)
 				{
@@ -105,24 +124,20 @@ namespace Shazam
 
 		public void Stop()
 		{
-			if (_service == null) throw new Exception("Invalid Service");
-
-			if ((_service.Status.Equals(ServiceControllerStatus.Stopped)) ||
-				(_service.Status.Equals(ServiceControllerStatus.StopPending)))
-			{
-				return;
-			}
+			if (!IsValidService) return;
+			if (_service.Status.Equals(ServiceControllerStatus.Stopped)) return;
 
 			var attempts = 0;
-			var wait = true;
+			var wait = _service.CanStop;
 
 			while ((wait) && (attempts < RetryAttempts))
 			{
 				try
 				{
-					_service.Stop();
+					if (!_service.Status.Equals(ServiceControllerStatus.StopPending)) _service.Stop();
 					_service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromMilliseconds(DefaultTimeout));
 					wait = (Status != ServiceControllerStatus.Stopped);
+					attempts += 1;
 				}
 				catch (System.ServiceProcess.TimeoutException e)
 				{
@@ -142,5 +157,3 @@ namespace Shazam
 		}
 	}
 }
-
-//TODO: Start and Stop should wait to see if the result is pending before attempting again
