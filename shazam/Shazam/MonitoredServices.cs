@@ -24,7 +24,6 @@ namespace Shazam
 
 			try
 			{
-				//TODO: Parse each element individually instead of as an entire list
 				_services = JsonConvert.DeserializeObject<List<MonitoredService>>(json);
 			}
 			catch
@@ -59,6 +58,7 @@ namespace Shazam
 				}
 				catch (Exception e)
 				{
+					//TODO: Better exception handling
 					Console.WriteLine(e.Message);
 				}
 			}
@@ -89,12 +89,14 @@ namespace Shazam
 			}
 
 			_services.Add(service);
+			Save();
 		}
 
 		public void Remove(MonitoredService service)
 		{
 			var index = this.IndexOf(service);
 			_services.RemoveAt(index);
+			Save();
 		}
 
 		public MonitoredService Get(string serviceName)
@@ -106,6 +108,35 @@ namespace Shazam
 		public List<MonitoredService> List
 		{
 			get { return new List<MonitoredService>(_services); }
+		}
+
+		public int Count
+		{
+			get { return _services.Count; }
+		}
+
+		public void AutoStart()
+		{
+			foreach (var service in _services)
+			{
+				if (!service.AutoStart) continue;
+				if (service.IsValidService)
+				{
+					service.Start();
+				}
+			}
+		}
+
+		public void AutoStop()
+		{
+			foreach (var service in _services)
+			{
+				if (!service.AutoStop) continue;
+				if (service.IsValidService)
+				{
+					service.Stop();
+				}
+			}
 		}
 
 		public void Save()
