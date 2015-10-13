@@ -10,43 +10,19 @@ namespace Shazam
 	{
 		static void Main(string[] args)
 		{
-			var service = new MonitoredService() { AutoStart = true, AutoStop = false, DisplayName = "MySQL Server", ServiceName = "MySQL56" };
-			//var service = new MonitoredService() { AutoStart = true, AutoStop = false, DisplayName = "Adobe Flash Player Update Service", ServiceName = "AdobeFlashPlayerUpdateSvc" };
+			var service = new MonitoredService() { AutoStart = true, AutoStop = false, DisplayName = "MySQL Server", ServiceName = "MySQL55" };
+			var servicea = new MonitoredService() { AutoStart = true, AutoStop = false, DisplayName = "MySQL Server", ServiceName = "MySQL56" };
+			var serviceb = new MonitoredService(new ServiceController("RavenDB"));
 
-			if (service.IsValidService)
-			{
-				Console.WriteLine(String.Format("{0} is {1}", service.DisplayName, service.Status));
+			Console.WriteLine(String.Format("{0} : {1}, {2}", service.DisplayName, service.Status, service.IsValidService));
+			Console.WriteLine(String.Format("{0} : {1}, {2}", servicea.DisplayName, servicea.Status, servicea.IsValidService));
+			Console.WriteLine(String.Format("{0} : {1}, {2}", serviceb.DisplayName, serviceb.Status, serviceb.IsValidService));
 
-				if (service.Status.Equals(ServiceControllerStatus.Stopped))
-				{
-					Console.Write("Starting...");
+			var services = MonitoredServices.GetInstance();
+			services.Add(servicea);
+			services.Add(serviceb);
 
-					while (!service.Status.Equals(ServiceControllerStatus.Running))
-					{
-						service.Start();
-					}
-
-					Console.WriteLine("done.");
-				}
-
-				if (service.Status.Equals(ServiceControllerStatus.Running))
-				{
-					Console.Write("Stopping...");
-
-					while (!service.Status.Equals(ServiceControllerStatus.Stopped))
-					{
-						service.Stop();
-					}
-
-					Console.WriteLine("done.");
-				}
-
-				Console.WriteLine(String.Format("{0} is {1}", service.DisplayName, service.Status));
-			}
-			else
-			{
-				Console.WriteLine("Invalid Service");
-			}
+			Console.Write(String.Format("{0} Services", services.Count));
 
 			Console.ReadLine();
 		}
