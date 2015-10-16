@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
 using System.ServiceProcess;
 using Newtonsoft.Json;
 
@@ -20,9 +16,12 @@ namespace Shazam
 		public bool AutoStart { get; set; }
 		public bool AutoStop { get; set; }
 
-		[JsonIgnore] public bool IsValidService { get; private set; }
-		[JsonIgnore] public int  DefaultTimeout { get; set; }
-		[JsonIgnore] public int RetryAttempts { get; set; }
+		[JsonIgnore]
+		public bool IsValidService { get; private set; }
+		[JsonIgnore]
+		public int DefaultTimeout { get; set; }
+		[JsonIgnore]
+		public int RetryAttempts { get; set; }
 
 		internal MonitoredService()
 		{
@@ -30,7 +29,8 @@ namespace Shazam
 			RetryAttempts = _retry;
 		}
 
-		internal MonitoredService(ServiceController service) : base()
+		internal MonitoredService(ServiceController service)
+			: base()
 		{
 			_service = service;
 			DisplayName = _service.DisplayName;
@@ -41,7 +41,7 @@ namespace Shazam
 		{
 			get
 			{
-				return (_service == null) ? _serviceName :_service.ServiceName;
+				return (_service == null) ? _serviceName : _service.ServiceName;
 			}
 			set
 			{
@@ -68,7 +68,7 @@ namespace Shazam
 				if (IsValidService)
 				{
 					_service.Refresh();
-					return _service.Status;					
+					return _service.Status;
 				}
 				else
 				{
@@ -98,7 +98,8 @@ namespace Shazam
 		{
 			if (!IsValidService) return;
 			if (_service.Status.Equals(ServiceControllerStatus.Running)) return;
-			
+			if (ServiceIsPending()) return;
+
 			var attempts = 0;
 			var wait = true;
 
@@ -111,7 +112,7 @@ namespace Shazam
 					wait = (Status != ServiceControllerStatus.Running);
 					attempts += 1;
 				}
-				catch (System.ServiceProcess.TimeoutException e)
+				catch (System.ServiceProcess.TimeoutException)
 				{
 					attempts += 1;
 				}
@@ -126,6 +127,7 @@ namespace Shazam
 		{
 			if (!IsValidService) return;
 			if (_service.Status.Equals(ServiceControllerStatus.Stopped)) return;
+			if (ServiceIsPending()) return;
 
 			var attempts = 0;
 			var wait = _service.CanStop;
@@ -139,7 +141,7 @@ namespace Shazam
 					wait = (Status != ServiceControllerStatus.Stopped);
 					attempts += 1;
 				}
-				catch (System.ServiceProcess.TimeoutException e)
+				catch (System.ServiceProcess.TimeoutException)
 				{
 					attempts += 1;
 				}
@@ -154,6 +156,50 @@ namespace Shazam
 		{
 			this.Stop();
 			this.Start();
+		}
+
+		private bool ServiceIsPending()
+		{
+			var wait = true;
+			var attempts = 0;
+
+			ServiceControllerStatus desiredStatus = _service.Status;
+			switch (_service.Status)
+			{
+				case ServiceControllerStatus.ContinuePending:
+					desiredStatus = ServiceControllerStatus.Running;
+					break;
+				case ServiceControllerStatus.PausePending:
+					desiredStatus = ServiceControllerStatus.Paused;
+					break;
+				case ServiceControllerStatus.StartPending:
+					desiredStatus = ServiceControllerStatus.Running;
+					break;
+				case ServiceControllerStatus.StopPending:
+					desiredStatus = ServiceControllerStatus.Stopped;
+					break;
+				default:
+					wait = false;
+					break;
+			}
+
+			while ((wait) && (attempts < RetryAttempts))
+			{
+				var timeout = TimeSpan.FromMilliseconds(DefaultTimeout);
+				attempts += 1;
+
+				try
+				{
+					_service.WaitForStatus(desiredStatus, timeout);
+					wait = (_service.Status != desiredStatus);
+				}
+				catch (System.ServiceProcess.TimeoutException)
+				{
+					wait = true;
+				}
+			}
+
+			return wait;
 		}
 	}
 }

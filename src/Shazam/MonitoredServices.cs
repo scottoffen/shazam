@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace Shazam
@@ -39,7 +37,7 @@ namespace Shazam
 			}
 		}
 
-		private string GetJsonString ()
+		private string GetJsonString()
 		{
 			var json = "[]";
 
@@ -76,7 +74,7 @@ namespace Shazam
 			return _services.FindIndex(s => s.ServiceName.Equals(serviceName, StringComparison.CurrentCultureIgnoreCase));
 		}
 
-		private bool Contains (MonitoredService service)
+		private bool Contains(MonitoredService service)
 		{
 			return (this.IndexOf(service) > -1);
 		}
@@ -139,7 +137,7 @@ namespace Shazam
 			}
 		}
 
-		public void Save()
+		private void Save()
 		{
 			using (var output = new StreamWriter(_file))
 			{
