@@ -26,7 +26,7 @@ namespace Shazam.Forms
 					_icon.Text = "Shazam";
 					_icon.Icon = Properties.Resources.shazam;
 					_icon.ContextMenu = NotifyIconMenu;
-					_icon.MouseDoubleClick += new MouseEventHandler(HandleIconDblClick);
+					_icon.MouseDoubleClick += HandleIconDblClick;
 					_icon.ShowBalloonTip(5000, "Shazam", "Manage system services", ToolTipIcon.None);
 				}
 
@@ -140,6 +140,7 @@ namespace Shazam.Forms
 			{
 				_menu.Dispose();
 				_icon.Dispose();
+				MonitoredServices.GetInstance().AutoStop();
 			}
 
 			base.Dispose(disposing);

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using Shazam.Models;
 
@@ -29,21 +24,38 @@ namespace Shazam.Forms
 		public void Start()
 		{
 			this.Show();
-
-			MonitoredServices.GetInstance().AutoStartingDelegate = new AutoStartingDelegate(ServiceAutoStarting);
-			MonitoredServices.GetInstance().AutoStartedDelegate = new AutoStartedDelegate(ServiceAutoStarted);
-
 			workerAutoStart.RunWorkerAsync();
 		}
 
 		private void workerAutoStart_DoWork(object sender, DoWorkEventArgs e)
 		{
+			BackgroundWorker worker = sender as BackgroundWorker;
+			worker.ReportProgress(Progress);
 
+			var services = MonitoredServices.GetInstance();
+			var progressPerService = services.CountAutoStart/100;
+			Progress = services.CountAutoStart%100;
+
+			services.List.ForEach(service =>
+			{
+				if (service.AutoStart)
+				{
+					Phase = String.Format("Starting {0} service", service.DisplayName);
+					worker.ReportProgress(Progress);
+					service.Start();
+					Progress += progressPerService;
+				}
+			});
+
+			Progress = 100;
+			Phase = "Completed";
+			worker.ReportProgress(Progress);
 		}
 
 		private void workerAutoStart_ProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
-
+			pbAutoStart.Value = Progress;
+			lbProgress.Text = Phase;
 		}
 
 		private void workerAutoStart_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -52,9 +64,6 @@ namespace Shazam.Forms
 			{
 				MessageBox.Show(e.Error.Message, "Service AutoStart Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-
-			MonitoredServices.GetInstance().AutoStartingDelegate = null;
-			MonitoredServices.GetInstance().AutoStartedDelegate = null;
 
 			pbAutoStart.Update();
 			pbAutoStart.Refresh();
@@ -66,16 +75,6 @@ namespace Shazam.Forms
 		{
 			this.Close();
 			this.Dispose();
-		}
-
-		private void ServiceAutoStarting (MonitoredService service)
-		{
-
-		}
-
-		private void ServiceAutoStarted (MonitoredService service)
-		{
-
 		}
 	}
 }

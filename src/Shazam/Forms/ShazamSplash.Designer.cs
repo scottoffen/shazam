@@ -60,6 +60,7 @@
 			// 
 			// timerCompletion
 			// 
+			this.timerCompletion.Interval = 1250;
 			this.timerCompletion.Tick += new System.EventHandler(this.timerCompletion_Tick);
 			// 
 			// ShazamSplash

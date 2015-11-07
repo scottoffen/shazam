@@ -6,22 +6,11 @@ using Newtonsoft.Json;
 
 namespace Shazam.Models
 {
-	internal delegate void AutoStartingDelegate(MonitoredService service);
-	internal delegate void AutoStartedDelegate(MonitoredService service);
-
-	internal delegate void AutoStoppingDelegate(MonitoredService service);
-	internal delegate void AutoStoppedDelegate(MonitoredService service);
-
 	internal class MonitoredServices
 	{
 		private static MonitoredServices _instance;
 		private List<MonitoredService> _services;
 		private readonly string _file = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".shazam");
-
-		public AutoStartingDelegate AutoStartingDelegate { get; set; }
-		public AutoStartedDelegate AutoStartedDelegate { get; set; }
-		public AutoStoppingDelegate AutoStoppingDelegate { get; set; }
-		public AutoStoppedDelegate AutoStoppedDelegate { get; set; }
 
 		public static MonitoredServices GetInstance()
 		{
@@ -142,9 +131,7 @@ namespace Shazam.Models
 				if (!service.AutoStart) continue;
 				if (service.IsValidService)
 				{
-					if (AutoStartingDelegate != null) AutoStartingDelegate(service);
 					service.Start();
-					if (AutoStartedDelegate != null) AutoStartedDelegate(service);
 				}
 			}
 		}
@@ -156,9 +143,7 @@ namespace Shazam.Models
 				if (!service.AutoStop) continue;
 				if (service.IsValidService)
 				{
-					if (AutoStoppingDelegate != null) AutoStoppingDelegate(service);
 					service.Stop();
-					if (AutoStoppedDelegate != null) AutoStoppedDelegate(service);
 				}
 			}
 		}

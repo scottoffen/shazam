@@ -83,6 +83,9 @@
     <EmbeddedResource Include="Forms\ShazamSplash.resx">
       <DependentUpon>ShazamSplash.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ShazamViewer.resx">
+      <DependentUpon>ShazamViewer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -95,6 +98,8 @@
     </Compile>
     <None Include="app.manifest" />
     <None Include="packages.config" />
+    <None Include="Properties\DataSources\Shazam.Models.MonitoredService.datasource" />
+    <None Include="Properties\DataSources\Shazam.Models.MonitoredServices.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

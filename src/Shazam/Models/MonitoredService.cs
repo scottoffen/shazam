@@ -12,15 +12,22 @@ namespace Shazam.Models
 
 		private string _serviceName;
 
+        [JsonProperty(PropertyName = "displayname")]
 		public string DisplayName { get; set; }
+
+        [JsonProperty(PropertyName = "autostart")]
 		public bool AutoStart { get; set; }
+
+        [JsonProperty(PropertyName = "autostop")]
 		public bool AutoStop { get; set; }
 
 		[JsonIgnore]
 		public bool IsValidService { get; private set; }
-		[JsonIgnore]
+
+        [JsonProperty(PropertyName = "defaulttimeout")]
 		public int DefaultTimeout { get; set; }
-		[JsonIgnore]
+
+        [JsonProperty(PropertyName = "retryattempts")]
 		public int RetryAttempts { get; set; }
 
 		internal MonitoredService()
@@ -29,14 +36,14 @@ namespace Shazam.Models
 			RetryAttempts = _retry;
 		}
 
-		internal MonitoredService(ServiceController service)
-			: base()
+		internal MonitoredService(ServiceController service) : base()
 		{
 			_service = service;
 			DisplayName = _service.DisplayName;
 			IsValidService = true;
 		}
 
+        [JsonProperty(PropertyName = "servicename")]
 		public string ServiceName
 		{
 			get
