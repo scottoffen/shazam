@@ -52,6 +52,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\EditMonitoredService.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\EditMonitoredService.Designer.cs">
+      <DependentUpon>EditMonitoredService.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ListMonitoredService.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ListMonitoredService.Designer.cs">
+      <DependentUpon>ListMonitoredService.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\ShazamAbout.cs">
       <SubType>Form</SubType>
     </Compile>

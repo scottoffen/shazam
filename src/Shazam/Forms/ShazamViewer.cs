@@ -84,5 +84,39 @@ namespace Shazam.Forms
 			SortBy = dgvServices.SortedColumn.HeaderText.Replace(" ", "");
 			this.SortOrder = dgvServices.SortOrder;
 		}
+
+		private void btnRemoveService_Click(object sender, EventArgs e)
+		{
+			MessageBox.Show(dgvServices.SelectedRows.Count.ToString());
+		}
+
+		private void btnAddService_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void ShazamViewer_Shown(object sender, EventArgs e)
+		{
+			dgvServices.CurrentCell.Selected = false;
+			btnEditService.Enabled = false;
+		}
+
+		private void dgvServices_SelectionChanged(object sender, EventArgs e)
+		{
+			btnEditService.Enabled = true;
+		}
+
+		private void ShazamViewer_KeyDown(object sender, KeyEventArgs e)
+		{
+			// Right now this just closes the form, but if you are on the edit screen, you should just go back to the list view
+			if (e.KeyCode == Keys.Escape)
+			{
+				this.Close();
+			}
+			else
+			{
+				MessageBox.Show(String.Format("{0} != {1}", e.KeyCode, Keys.Escape));
+			}
+		}
 	}
 }

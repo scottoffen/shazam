@@ -121,6 +121,7 @@ namespace Shazam.Forms
 					ShowAbout();
 					break;
 				default:
+					_viewer.Close();
 					MonitoredServices.GetInstance().AutoStop();
 					Application.Exit();
 					break;
@@ -138,6 +139,7 @@ namespace Shazam.Forms
 		{
 			if (disposing)
 			{
+				_viewer.Dispose();
 				_menu.Dispose();
 				_icon.Dispose();
 				MonitoredServices.GetInstance().AutoStop();
