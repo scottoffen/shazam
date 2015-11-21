@@ -89,6 +89,12 @@
     <Compile Include="Models\MonitoredServices.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\EditMonitoredService.resx">
+      <DependentUpon>EditMonitoredService.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ListMonitoredService.resx">
+      <DependentUpon>ListMonitoredService.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ShazamAbout.resx">
       <DependentUpon>ShazamAbout.cs</DependentUpon>
     </EmbeddedResource>

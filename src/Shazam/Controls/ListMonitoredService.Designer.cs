@@ -45,10 +45,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.dgvServices.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dgvServices.Location = new System.Drawing.Point(0, 0);
+			this.dgvServices.Location = new System.Drawing.Point(3, 3);
 			this.dgvServices.Name = "dgvServices";
 			this.dgvServices.ReadOnly = true;
-			this.dgvServices.Size = new System.Drawing.Size(632, 397);
+			this.dgvServices.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+			this.dgvServices.Size = new System.Drawing.Size(415, 136);
 			this.dgvServices.TabIndex = 0;
 			this.dgvServices.SelectionChanged += new System.EventHandler(this.dgvServices_SelectionChanged);
 			this.dgvServices.Sorted += new System.EventHandler(this.dgvServices_Sorted);
@@ -57,7 +58,7 @@
 			// 
 			this.btnRemoveService.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnRemoveService.Enabled = false;
-			this.btnRemoveService.Location = new System.Drawing.Point(533, 407);
+			this.btnRemoveService.Location = new System.Drawing.Point(318, 145);
 			this.btnRemoveService.Name = "btnRemoveService";
 			this.btnRemoveService.Size = new System.Drawing.Size(100, 23);
 			this.btnRemoveService.TabIndex = 1;
@@ -69,7 +70,7 @@
 			// 
 			this.btnEditService.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnEditService.Enabled = false;
-			this.btnEditService.Location = new System.Drawing.Point(423, 407);
+			this.btnEditService.Location = new System.Drawing.Point(212, 145);
 			this.btnEditService.Name = "btnEditService";
 			this.btnEditService.Size = new System.Drawing.Size(100, 23);
 			this.btnEditService.TabIndex = 2;
@@ -80,7 +81,7 @@
 			// btnAddService
 			// 
 			this.btnAddService.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnAddService.Location = new System.Drawing.Point(-1, 407);
+			this.btnAddService.Location = new System.Drawing.Point(3, 145);
 			this.btnAddService.Name = "btnAddService";
 			this.btnAddService.Size = new System.Drawing.Size(100, 23);
 			this.btnAddService.TabIndex = 3;
@@ -92,12 +93,14 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoSize = true;
 			this.Controls.Add(this.btnAddService);
 			this.Controls.Add(this.btnEditService);
 			this.Controls.Add(this.btnRemoveService);
 			this.Controls.Add(this.dgvServices);
+			this.Margin = new System.Windows.Forms.Padding(0);
 			this.Name = "ListMonitoredService";
-			this.Size = new System.Drawing.Size(632, 429);
+			this.Size = new System.Drawing.Size(421, 171);
 			((System.ComponentModel.ISupportInitialize)(this.dgvServices)).EndInit();
 			this.ResumeLayout(false);
 
